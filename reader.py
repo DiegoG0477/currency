@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 
 automaton = Automaton("currency_auto.xml")
 
-text = extract_text_from_html('html/sevilla.html')
+text = extract_text_from_html('html/gobierno.html')
 
 text_array = text.split(' ')
 
