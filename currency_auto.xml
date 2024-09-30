@@ -65,6 +65,13 @@
         <state id="60" name ="q60"/>
         <state id="61" name ="q61"/>
         <state id="62" name ="q62"/>
+        <state id="63" name ="q63"/>
+        <state id="64" name ="q64"/>
+        <state id="65" name ="q65"/>
+        <state id="66" name ="q66"/>
+        <state id="67" name ="q67"/>
+        <state id="68" name ="q68"/>
+        <state id="69" name ="q69"/>
 
         <!-- EN LAS TRANSICIONES, [SPC] HARÁ REFERENCIA A UN ESPACIO EN BLANCO -->
 
@@ -78,6 +85,18 @@
             <from>0</from>
             <to>39</to>
             <read>[$¥]</read>
+        </transition>
+
+        <transition>
+            <from>0</from>
+            <to>63</to>
+            <read>U</read>
+        </transition>
+
+        <transition>
+            <from>0</from>
+            <to>64</to>
+            <read>M</read>
         </transition>
 
         <transition>
@@ -828,6 +847,78 @@
             <from>62</from>
             <to>61</to>
             <read>[0-9]</read>
+        </transition>
+
+        <transition>
+            <from>63</from>
+            <to>65</to>
+            <read>S</read>
+        </transition>
+
+        <transition>
+            <from>64</from>
+            <to>66</to>
+            <read>X</read>
+        </transition>
+
+        <transition>
+            <from>65</from>
+            <to>67</to>
+            <read>D</read>
+        </transition>
+
+        <transition>
+            <from>66</from>
+            <to>68</to>
+            <read>N</read>
+        </transition>
+
+        <transition>
+            <from>67</from>
+            <to>40</to>
+            <read>[1-9]</read>
+        </transition>
+
+        <transition>
+            <from>67</from>
+            <to>50</to>
+            <read>0</read>
+        </transition>
+
+        <transition>
+            <from>67</from>
+            <to>69</to>
+            <read>[SPC]</read>
+        </transition>
+
+        <transition>
+            <from>68</from>
+            <to>40</to>
+            <read>[1-9]</read>
+        </transition>
+
+        <transition>
+            <from>68</from>
+            <to>50</to>
+            <read>0</read>
+        </transition>
+
+        <transition>
+            <from>68</from>
+            <to>69</to>
+            <read>[SPC]</read>
+        </transition>
+
+        <transition>
+            <from>69</from>
+            <to>40</to>
+            <read>[1-9]</read>
+        </transition>
+
+        <transition>
+            <from>69</from>
+            <to>50</to>
+            <read>0</read>
         </transition>
     </automaton>
 </structure>
