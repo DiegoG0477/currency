@@ -1,6 +1,9 @@
 import xml.etree.ElementTree as ET
 import re
 
+#el alfabeto de nuestro automata es:
+#{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, $, €, ¥, [,], [.], ' ', E, U, R, M, X, N, S, D}
+
 class Automaton:
     def __init__(self, xml_file):
         self.states = {}
@@ -80,7 +83,7 @@ class Automaton:
 
 def main():
     # Load the automaton from the XML file
-    automaton = Automaton("eur_auto.xml")
+    automaton = Automaton("currency_auto.xml")
     
     while True:
         # Get input from the user
@@ -88,7 +91,6 @@ def main():
         if user_input.lower() == 'exit':
             break
 
-        # Simulate the automaton on the input
         if automaton.simulate(user_input):
             print(f"The input '{user_input}' is accepted.")
         else:

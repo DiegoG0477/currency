@@ -37,4 +37,15 @@ soup = BeautifulSoup(html_content, 'html.parser')
 # Extrae el texto del cuerpo del HTML
 alltext = soup.get_text(separator=' ', strip=True)
 
-print(alltext)
+# print(alltext)
+
+def extract_text_from_html(html_path):
+    """
+    Extracts text content from an HTML file.
+    """
+    with open(html_path, 'r', encoding='utf-8') as file:
+        html_content = file.read()
+
+    soup = BeautifulSoup(html_content, 'html.parser')
+    alltext = soup.get_text(separator=' ', strip=True)
+    return alltext
