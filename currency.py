@@ -6,7 +6,7 @@ import re
 
 class Automaton:
     def __init__(self, xml_file):
-        self.states = {}
+        self.states = {} 
         self.transitions = []
         self.initial_state = None
         self.final_states = set()
@@ -64,7 +64,7 @@ class Automaton:
         
         # Otherwise, just match the literal value
         return read_value == char
-
+ 
     def simulate(self, input_string):
         """
         Simulates the automaton on the given input string and returns True if accepted.

@@ -1,68 +1,111 @@
-from io import StringIO
+import tkinter as tk
+from tkinter import filedialog, messagebox
+import pandas as pd
+from bs4 import BeautifulSoup
+import docx
 from currency import Automaton
-from html_extract import extract_text_from_html
 import xml.etree.ElementTree as ET
 
+# Project imports
+from html_extract import extract_text_from_html
+
 automaton = Automaton("automaton.xml")
-
-text = extract_text_from_html('html/gobierno.html')
-
-text_array = text.split(' ')
-
 symbols = ['$', '€', '¥', 'USD', 'EUR', 'MXN']
 
-currencies = []
+def process_file():
+    file_path = filedialog.askopenfilename(filetypes=[("All Files", "*.xlsx *.csv *.docx *.html"), 
+                                                      ("Excel files", "*.xlsx"), 
+                                                      ("CSV files", "*.csv"), 
+                                                      ("Word files", "*.docx"), 
+                                                      ("HTML files", "*.html")])
+    
+    if not file_path:
+        return
 
-def evaluate_word(word):
-    current_state = automaton.initial_state
-    for char in word:
-        next_state = automaton.is_valid_transition(current_state, char)
-        if next_state is None:
-            return False
-        current_state = next_state
-    return current_state in automaton.final_states
+    extension = file_path.split('.')[-1].lower()
 
-# Este fue reemplazado por un bug existente cuando hay distintos MXN, USD, EUR o €
-# for word in text_array:
-#     current_state = automaton.initial_state
+    if extension == 'html':
+        text = extract_text_from_html(file_path)
+    elif extension == 'xlsx':
+        text = extract_text_from_xlsx(file_path)
+    elif extension == 'csv':
+        text = extract_text_from_csv(file_path)
+    elif extension == 'docx':
+        text = extract_text_from_docx(file_path)
+    else:
+        messagebox.showerror("Error", "Formato de archivo no soportado")
+        return
+    
+    analyze_text(text)
 
-#     # print(word)
+def extract_text_from_xlsx(file_path):
+    df = pd.read_excel(file_path)
+    text = ' '.join(df.astype(str).stack().tolist())
+    print(text)
+    return text
 
-#     print(text_array.index('USD'))
+def extract_text_from_csv(file_path):
+    df = pd.read_csv(file_path)
+    text = ' '.join(df.astype(str).stack().tolist())
+    print(text)
+    return text
 
-#     if word in symbols:
-#         # print(word)
-#         symbol_index = text_array.index(word)
-#         print(text_array[symbol_index-1], word)
-#         print(word, text_array[symbol_index+1])
+def extract_text_from_docx(file_path):
+    doc = docx.Document(file_path)
+    full_text = []
+    for para in doc.paragraphs:
+        full_text.append(para.text)
+    return ' '.join(full_text)
 
-#         if evaluate_word(text_array[symbol_index-1] + ' ' + word):
-#             currencies.append(text_array[symbol_index-1] + ' ' + word)
-#             continue
+def analyze_text(text):
+    text_array = text.split(' ')
+    currencies = []
+    def evaluate_word(word): 
+        current_state = automaton.initial_state
+        for char in word:
+            next_state = automaton.is_valid_transition(current_state, char)
+            if next_state is None:
+                return False
+            current_state = next_state
+        return current_state in automaton.final_states
+    for i in range(len(text_array)):
+        current_state = automaton.initial_state
+        word = text_array[i]
+        if word in symbols:
+            symbol_index = i
+            if evaluate_word(text_array[symbol_index-1] + ' ' + word):
+                currencies.append(text_array[symbol_index-1] + ' ' + word)
+                continue
+            if evaluate_word(word + ' ' + text_array[symbol_index+1]):
+                currencies.append(word + ' ' + text_array[symbol_index+1])
+        elif evaluate_word(word):
+            currencies.append(word)
+    display_results(currencies)
 
-#         if evaluate_word(word + ' ' + text_array[symbol_index+1]):
-#             currencies.append(word + ' ' + text_array[symbol_index+1])
+def display_results(currencies):
+    result_window = tk.Toplevel()
+    result_window.title("Resultados encontrados")
+    result_text = tk.Text(result_window, height=20, width=80)
+    result_text.pack()
+    result_text.insert(tk.END, '\n'.join(currencies))
+    save_button = tk.Button(result_window, text="Descargar resultados", command=lambda: save_to_xlsx(currencies))
+    save_button.pack()
 
-#     elif evaluate_word(word):
-#         currencies.append(word)
+def save_to_xlsx(currencies):
+    df = pd.DataFrame(currencies, columns=["Monedas encontradas"])
+    save_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
+    if save_path:
+        df.to_excel(save_path, index=False)
+        messagebox.showinfo("Guardado", f"Resultados guardados en {save_path}")
 
-for i in range(len(text_array)):
-    current_state = automaton.initial_state
-    word = text_array[i]
 
-    if word in symbols:
-        symbol_index = i
-        print(text_array[symbol_index-1], word)
-        print(word, text_array[symbol_index+1])
+root = tk.Tk()
+root.title("Analizador de Monedas")
 
-        if evaluate_word(text_array[symbol_index-1] + ' ' + word):
-            currencies.append(text_array[symbol_index-1] + ' ' + word)
-            continue
+label = tk.Label(root, text="Seleccione un archivo para analizar:")
+label.pack(pady=10)
 
-        if evaluate_word(word + ' ' + text_array[symbol_index+1]):
-            currencies.append(word + ' ' + text_array[symbol_index+1])
+select_button = tk.Button(root, text="Seleccionar archivo", command=process_file)
+select_button.pack(pady=10)
 
-    elif evaluate_word(word):
-        currencies.append(word)
-
-print(currencies)
+root.mainloop()
