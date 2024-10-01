@@ -72,6 +72,23 @@
         <state id="67" name ="q67"/>
         <state id="68" name ="q68"/>
         <state id="69" name ="q69"/>
+        <state id="70" name ="q70"/>
+        <state id="71" name ="q71"/>
+        <state id="72" name ="q72"/>
+        <state id="73" name ="q73"/>
+        <state id="74" name ="q74"/>
+        <state id="75" name ="q75"/>
+        <state id="76" name ="q76"/>
+        <state id="77" name ="q77" final="true"/>
+        <state id="78" name ="q78" final="true"/>
+        <state id="79" name ="q79"/>
+        <state id="80" name ="q80"/>
+        <state id="81" name ="q81"/>
+        <state id="82" name ="q82"/>
+        <state id="83" name ="q83"/>
+        <state id="84" name ="q84"/>
+        <state id="85" name ="q85"/>
+        <state id="86" name ="q86"/>
 
         <!-- EN LAS TRANSICIONES, [SPC] HARÁ REFERENCIA A UN ESPACIO EN BLANCO -->
 
@@ -97,6 +114,12 @@
             <from>0</from>
             <to>64</to>
             <read>M</read>
+        </transition>
+
+        <transition>
+            <from>0</from>
+            <to>70</to>
+            <read>0</read>
         </transition>
 
         <transition>
@@ -919,6 +942,192 @@
             <from>69</from>
             <to>50</to>
             <read>0</read>
+        </transition>
+
+        <transition>
+            <from>70</from>
+            <to>71</to>
+            <read>.</read>
+        </transition>
+
+        <transition>
+            <from>70</from>
+            <to>72</to>
+            <read>,</read>
+        </transition>
+
+        <transition>
+            <from>71</from>
+            <to>73</to>
+            <read>[0-9]</read>
+        </transition>
+
+        <transition>
+            <from>72</from>
+            <to>75</to>
+            <read>[0-9]</read>
+        </transition>
+
+        <transition>
+            <from>73</from>
+            <to>74</to>
+            <read>[0-9]</read>
+        </transition>
+
+        <transition>
+            <from>73</from>
+            <to>77</to>
+            <read>$</read>
+        </transition>
+
+        <transition>
+            <from>73</from>
+            <to>79</to>
+            <read>M</read>
+        </transition>
+
+        <transition>
+            <from>73</from>
+            <to>81</to>
+            <read>U</read>
+        </transition>
+
+        <transition>
+            <from>73</from>
+            <to>85</to>
+            <read>[SPC]</read>
+        </transition>
+
+        <transition>
+            <from>74</from>
+            <to>77</to>
+            <read>$</read>
+        </transition>
+
+        <transition>
+            <from>74</from>
+            <to>79</to>
+            <read>M</read>
+        </transition>
+
+        <transition>
+            <from>74</from>
+            <to>81</to>
+            <read>U</read>
+        </transition>
+
+        <transition>
+            <from>74</from>
+            <to>85</to>
+            <read>[SPC]</read>
+        </transition>
+
+        <transition>
+            <from>75</from>
+            <to>76</to>
+            <read>[0-9]</read>
+        </transition>
+
+        <transition>
+            <from>75</from>
+            <to>78</to>
+            <read>€</read>
+        </transition>
+
+        <transition>
+            <from>75</from>
+            <to>83</to>
+            <read>E</read>
+        </transition>
+
+        <transition>
+            <from>75</from>
+            <to>86</to>
+            <read>[SPC]</read>
+        </transition>
+
+        <transition>
+            <from>76</from>
+            <to>78</to>
+            <read>€</read>
+        </transition>
+
+        <transition>
+            <from>76</from>
+            <to>83</to>
+            <read>E</read>
+        </transition>
+
+        <transition>
+            <from>76</from>
+            <to>86</to>
+            <read>[SPC]</read>
+        </transition>
+
+        <transition>
+            <from>79</from>
+            <to>80</to>
+            <read>X</read>
+        </transition>
+
+        <transition>
+            <from>80</from>
+            <to>77</to>
+            <read>N</read>
+        </transition>
+
+        <transition>
+            <from>81</from>
+            <to>82</to>
+            <read>S</read>
+        </transition>
+
+        <transition>
+            <from>82</from>
+            <to>77</to>
+            <read>D</read>
+        </transition>
+
+        <transition>
+            <from>83</from>
+            <to>84</to>
+            <read>U</read>
+        </transition>
+
+        <transition>
+            <from>84</from>
+            <to>78</to>
+            <read>R</read>
+        </transition>
+
+        <transition>
+            <from>85</from>
+            <to>77</to>
+            <read>$</read>
+        </transition>
+
+        <transition>
+            <from>85</from>
+            <to>79</to>
+            <read>M</read>
+        </transition>
+
+        <transition>
+            <from>85</from>
+            <to>81</to>
+            <read>U</read>
+        </transition>
+
+        <transition>
+            <from>86</from>
+            <to>78</to>
+            <read>€</read>
+        </transition>
+
+        <transition>
+            <from>86</from>
+            <to>83</to>
+            <read>E</read>
         </transition>
     </automaton>
 </structure>
