@@ -3,3 +3,4 @@ io
 xml
 re
 bs4
+python-docx
