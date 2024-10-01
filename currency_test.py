@@ -11,7 +11,7 @@ class TestAutomaton(unittest.TestCase):
         We are using the optimized XML file for the automaton.
         """
         # Load the automaton (assuming it's saved in "eur_auto.xml")")
-        self.automaton = Automaton("currency_auto.xml")
+        self.automaton = Automaton("automaton.xml")
 
     def test_valid_inputs(self):
         """

@@ -3,7 +3,7 @@ from currency import Automaton
 from html_extract import extract_text_from_html
 import xml.etree.ElementTree as ET
 
-automaton = Automaton("currency_auto.xml")
+automaton = Automaton("automaton.xml")
 
 text = extract_text_from_html('html/gobierno.html')
 

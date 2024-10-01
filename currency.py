@@ -83,7 +83,7 @@ class Automaton:
 
 def main():
     # Load the automaton from the XML file
-    automaton = Automaton("currency_auto.xml")
+    automaton = Automaton("automaton.xml")
     
     while True:
         # Get input from the user
