@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox
 import pandas as pd
 from currency import Automaton
 import xml.etree.ElementTree as ET
+from tkinter import ttk
 
 # Project imports
 from extracts import extract_text_from_html, extract_text_from_xlsx, extract_text_from_csv, extract_text_from_docx
@@ -26,25 +27,32 @@ def process_file():
     extension = file_path.split('.')[-1].lower()
 
     if extension == 'html':
-        text = extract_text_from_html(file_path)
+        data = extract_text_from_html(file_path)
     elif extension == 'xlsx':
-        text = extract_text_from_xlsx(file_path)
+        data = extract_text_from_xlsx(file_path)
     elif extension == 'csv':
-        text = extract_text_from_csv(file_path)
+        data = extract_text_from_csv(file_path)
     elif extension == 'docx':
-        text = extract_text_from_docx(file_path)
+        data = extract_text_from_docx(file_path)
     else:
         messagebox.showerror("Error", "Formato de archivo no soportado")
         return
     
-    analyze_text(text)
+    analyze_text(data, extension)
 
-def analyze_text(text):
+def analyze_text(data, extension):
     global currencies
-    text_array = text.split(' ')
-    currencies = []
 
-    def evaluate_word(word): 
+    if extension == 'csv' or extension == 'xlsx':
+        currencies = analyze_dataframe(data)
+        update_treeview_for_csv()
+    else:
+        currencies = analyze_text_array(data)
+        update_treeview_for_text()
+
+    display_results(currencies, extension)
+
+def evaluate_word(word): 
         current_state = automaton.initial_state
         for char in word:
             next_state = automaton.is_valid_transition(current_state, char)
@@ -53,10 +61,14 @@ def analyze_text(text):
             current_state = next_state
         return current_state in automaton.final_states
 
+def analyze_text_array(text):
+    text_array = text.split(' ')
+    currencies = []
+
     position = 0
 
-    for index, char in enumerate(text):
-        print(f"Índice: {index}, Carácter: '{char}'")
+    # for index, char in enumerate(text):
+    #     print(f"Índice: {index}, Carácter: '{char}'")
 
     for i in range(len(text_array)):
         word = text_array[i]
@@ -83,17 +95,64 @@ def analyze_text(text):
         elif evaluate_word(word):
             currencies.append((word, start_position, end_position, i))
 
-    display_results(currencies)
+    # display_results(currencies)
+    return currencies
 
-import tkinter as tk
-from tkinter import ttk
+def analyze_dataframe(df):
+    global currencies
+    currencies = []
 
-def display_results(currencies):
+    def process_row(row, row_index):
+        for col_index, value in row.items():
+            if not pd.isna(value):
+                process_cell(value, row_index, col_index)
+
+    def process_cell(value, row_index, col_index):
+        value_str = str(value)
+        for symbol in symbols:
+            if symbol in value_str and evaluate_word(value_str):
+                currencies.append((value_str, row_index + 2, col_index))
+
+    for row_index, row in df.iterrows():
+        process_row(row, row_index)
+
+    return currencies
+
+def update_treeview_for_csv():
+    tree["columns"] = ("Moneda", "Fila", "Columna")
+
+    tree.heading("Moneda", text="Moneda")
+    tree.heading("Fila", text="Fila")
+    tree.heading("Columna", text="Columna")
+
+    tree.column("Moneda", anchor="center")
+    tree.column("Fila", anchor="center")
+    tree.column("Columna", anchor="center")
+
+def update_treeview_for_text():
+    tree["columns"] = ("Moneda", "Posición inicial", "Posición final", "Índice")
+
+    tree.heading("Moneda", text="Moneda")
+    tree.heading("Posición inicial", text="Posición inicial")
+    tree.heading("Posición final", text="Posición final")
+    tree.heading("Índice", text="Índice")
+
+    tree.column("Moneda", anchor="center")
+    tree.column("Posición inicial", anchor="center")
+    tree.column("Posición final", anchor="center")
+    tree.column("Índice", anchor="center")
+
+def display_results(currencies, extension):
     for row in tree.get_children():
         tree.delete(row)
 
-    for currency, start_position, end_position, word_index in currencies:
-        tree.insert("", tk.END, values=(currency, start_position, end_position, word_index))
+    for currency in currencies:
+        if extension == 'csv' or extension == 'xlsx':
+            value, row_index, col_index = currency
+            tree.insert("", tk.END, values=(value, row_index, col_index))
+        else:
+            value, start_position, end_position, word_index = currency
+            tree.insert("", tk.END, values=(value, start_position, end_position, word_index))
 
     csv_button.pack(pady=5)
     xlsx_button.pack(pady=5)

@@ -8,7 +8,14 @@ def save_to_xlsx(currencies):
             messagebox.showwarning("Advertencia", "No hay datos para guardar.")
             return
         
-        df = pd.DataFrame(currencies, columns=["Moneda", "Posición Inicial", "Posición Final", "Indice"])
+        xlsx_columns = []
+
+        if len(currencies[0]) == 3:
+            xlsx_columns = ['Moneda', 'Fila', 'Columna']
+        else:
+            xlsx_columns = ["Moneda", "Posición Inicial", "Posición Final", "Indice"]
+
+        df = pd.DataFrame(currencies, columns=xlsx_columns)
         
         try:
             df.to_excel(save_path, index=False)
