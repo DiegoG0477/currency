@@ -9,7 +9,7 @@ from extracts import extract_text_from_html, extract_text_from_xlsx, extract_tex
 from saves import save_to_xlsx, save_to_csv
 
 
-automaton = Automaton("currency_auto.xml")
+automaton = Automaton("automaton.xml")
 symbols = ['$', '€', '¥', 'USD', 'EUR', 'MXN']
 currencies = []
 
