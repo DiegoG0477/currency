@@ -1,16 +1,17 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import pandas as pd
-from bs4 import BeautifulSoup
-import docx
 from currency import Automaton
 import xml.etree.ElementTree as ET
 
 # Project imports
-from html_extract import extract_text_from_html
+from extracts import extract_text_from_html, extract_text_from_xlsx, extract_text_from_csv, extract_text_from_docx
+from saves import save_to_xlsx, save_to_csv
+
 
 automaton = Automaton("automaton.xml")
 symbols = ['$', '€', '¥', 'USD', 'EUR', 'MXN']
+currencies = []
 
 def process_file():
     file_path = filedialog.askopenfilename(filetypes=[("All Files", "*.xlsx *.csv *.docx *.html"), 
@@ -38,28 +39,11 @@ def process_file():
     
     analyze_text(text)
 
-def extract_text_from_xlsx(file_path):
-    df = pd.read_excel(file_path)
-    text = ' '.join(df.astype(str).stack().tolist())
-    print(text)
-    return text
-
-def extract_text_from_csv(file_path):
-    df = pd.read_csv(file_path)
-    text = ' '.join(df.astype(str).stack().tolist())
-    print(text)
-    return text
-
-def extract_text_from_docx(file_path):
-    doc = docx.Document(file_path)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return ' '.join(full_text)
-
 def analyze_text(text):
+    global currencies
     text_array = text.split(' ')
     currencies = []
+
     def evaluate_word(word): 
         current_state = automaton.initial_state
         for char in word:
@@ -68,44 +52,67 @@ def analyze_text(text):
                 return False
             current_state = next_state
         return current_state in automaton.final_states
+
+    position = 0
+
+    for index, char in enumerate(text):
+        print(f"Índice: {index}, Carácter: '{char}'")
+
     for i in range(len(text_array)):
-        current_state = automaton.initial_state
         word = text_array[i]
+        start_position = text.find(word, position)  
+        end_position = start_position + len(word) - 1  
+        position = end_position + 1  
+
         if word in symbols:
             symbol_index = i
             if evaluate_word(text_array[symbol_index-1] + ' ' + word):
-                currencies.append(text_array[symbol_index-1] + ' ' + word)
+                prev_word = text_array[symbol_index-1] # El número antes del simbolo (word es el simbolo)
+                start_position = text.find(prev_word) # Aqui estoy buscando el numero ya que este es el caso donde el num esta antes del simbolo entonces del primer digito del num sale la pos de inicio diosmio
+                end_position = start_position + len(prev_word + ' ' + word) - 1 
+                currencies.append((prev_word + ' ' + word, start_position, end_position, i))
                 continue
+
             if evaluate_word(word + ' ' + text_array[symbol_index+1]):
-                currencies.append(word + ' ' + text_array[symbol_index+1])
+                next_word = text_array[symbol_index+1]
+                end_position = start_position + len(word + ' ' + next_word) - 1  
+                print(word + ' ' + next_word)
+                currencies.append((word + ' ' + next_word, start_position, end_position, i))
+                continue
+
         elif evaluate_word(word):
-            currencies.append(word)
+            currencies.append((word, start_position, end_position, i))
+
     display_results(currencies)
 
 def display_results(currencies):
-    result_window = tk.Toplevel()
-    result_window.title("Resultados encontrados")
-    result_text = tk.Text(result_window, height=20, width=80)
-    result_text.pack()
-    result_text.insert(tk.END, '\n'.join(currencies))
-    save_button = tk.Button(result_window, text="Descargar resultados", command=lambda: save_to_xlsx(currencies))
-    save_button.pack()
+    result_text.delete(1.0, tk.END)
+    
+    for currency, start_position, end_position, word_index in currencies:
+        result_text.insert(tk.END, f"{currency} | Posición inicial: {start_position}, Posición final: {end_position}, Índice de palabra: {word_index}\n")
 
-def save_to_xlsx(currencies):
-    df = pd.DataFrame(currencies, columns=["Monedas encontradas"])
-    save_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("Excel files", "*.xlsx")])
-    if save_path:
-        df.to_excel(save_path, index=False)
-        messagebox.showinfo("Guardado", f"Resultados guardados en {save_path}")
-
+    csv_button.pack(pady=5)
+    xlsx_button.pack(pady=5)
 
 root = tk.Tk()
 root.title("Analizador de Monedas")
 
-label = tk.Label(root, text="Seleccione un archivo para analizar:")
-label.pack(pady=10)
+select_frame = tk.Frame(root)
+select_frame.pack(pady=10)
 
-select_button = tk.Button(root, text="Seleccionar archivo", command=process_file)
-select_button.pack(pady=10)
+label = tk.Label(select_frame, text="Seleccione un archivo para analizar:")
+label.pack(side=tk.LEFT)
+
+select_button = tk.Button(select_frame, text="Seleccionar archivo", command=process_file)
+select_button.pack(side=tk.LEFT, padx=10)
+
+result_frame = tk.Frame(root)
+result_frame.pack(pady=10)
+
+result_text = tk.Text(result_frame, height=20, width=80)
+result_text.pack()
+
+csv_button = tk.Button(root, text="Descargar CSV", command=lambda: save_to_csv(currencies))
+xlsx_button = tk.Button(root, text="Descargar XLSX", command=lambda: save_to_xlsx(currencies))
 
 root.mainloop()
