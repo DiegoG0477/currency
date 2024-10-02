@@ -85,34 +85,56 @@ def analyze_text(text):
 
     display_results(currencies)
 
+import tkinter as tk
+from tkinter import ttk
+
 def display_results(currencies):
-    result_text.delete(1.0, tk.END)
-    
+    for row in tree.get_children():
+        tree.delete(row)
+
     for currency, start_position, end_position, word_index in currencies:
-        result_text.insert(tk.END, f"{currency} | Posición inicial: {start_position}, Posición final: {end_position}, Índice de palabra: {word_index}\n")
+        tree.insert("", tk.END, values=(currency, start_position, end_position, word_index))
 
     csv_button.pack(pady=5)
     xlsx_button.pack(pady=5)
 
 root = tk.Tk()
 root.title("Analizador de Monedas")
+root.configure(bg="#ADD8E6")
 
-select_frame = tk.Frame(root)
+title_frame = tk.Frame(root, bg="#ADD8E6")
+title_frame.pack(pady=10)
+
+title_label = tk.Label(title_frame, text="Currency", font=("Arial", 16, "bold"), bg="#ADD8E6", fg="#00008B")
+title_label.pack(padx=5)  
+
+subtitle_label = tk.Label(title_frame, text="Reconocedor de diferentes concurrencias monetarias", font=("Arial", 10), bg="#ADD8E6", fg="#00008B")
+subtitle_label.pack(padx=5)  
+
+select_frame = tk.Frame(root, bg="#ADD8E6")
 select_frame.pack(pady=10)
 
-label = tk.Label(select_frame, text="Seleccione un archivo para analizar:")
+label = tk.Label(select_frame, text="Seleccione un archivo para analizar:", bg="#ADD8E6", fg="#00008B")
 label.pack(side=tk.LEFT)
 
-select_button = tk.Button(select_frame, text="Seleccionar archivo", command=process_file)
+select_button = tk.Button(select_frame, text="Seleccionar archivo", command=process_file, bg="white", fg="#00008B")
 select_button.pack(side=tk.LEFT, padx=10)
 
-result_frame = tk.Frame(root)
+result_frame = tk.Frame(root, bg="#ADD8E6")
 result_frame.pack(pady=10)
 
-result_text = tk.Text(result_frame, height=20, width=80)
-result_text.pack()
+columns = ("Moneda", "Posición inicial", "Posición final", "Índice")
+tree = ttk.Treeview(result_frame, columns=columns, show="headings", height=20)
+tree.pack()
 
-csv_button = tk.Button(root, text="Descargar CSV", command=lambda: save_to_csv(currencies))
-xlsx_button = tk.Button(root, text="Descargar XLSX", command=lambda: save_to_xlsx(currencies))
+for col in columns:
+    tree.heading(col, text=col)
+    tree.column(col, anchor="center")  
+
+footer_label = tk.Label(root, text="Integrantes: Diego Gordillo L - 223213 Mónica Mundo C - 223238", font=("Arial", 10), bg="#ADD8E6", fg="#00008B")
+footer_label.pack(side=tk.LEFT, padx=10, pady=10)
+
+csv_button = tk.Button(root, text="Descargar CSV", command=lambda: save_to_csv(currencies), bg="white", fg="#00008B")
+xlsx_button = tk.Button(root, text="Descargar XLSX", command=lambda: save_to_xlsx(currencies), bg="white", fg="#00008B")
 
 root.mainloop()
