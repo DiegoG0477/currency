@@ -4,3 +4,4 @@ xml
 re
 bs4
 python-docx
+PyPDF2

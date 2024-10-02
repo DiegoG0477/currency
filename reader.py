@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 from tkinter import ttk
 
 # Project imports
-from extracts import extract_text_from_html, extract_text_from_xlsx, extract_text_from_csv, extract_text_from_docx
+from extracts import extract_text_from_html, extract_text_from_xlsx, extract_text_from_csv, extract_text_from_docx, extract_text_from_txt, extract_text_from_pdf
 from saves import save_to_xlsx, save_to_csv
 
 
@@ -16,10 +16,12 @@ currencies = []
 
 def process_file():
     file_path = filedialog.askopenfilename(filetypes=[("All Files", "*.xlsx *.csv *.docx *.html"), 
-                                                      ("Excel files", "*.xlsx"), 
-                                                      ("CSV files", "*.csv"), 
-                                                      ("Word files", "*.docx"), 
-                                                      ("HTML files", "*.html")])
+                                                    ("Excel files", "*.xlsx"), 
+                                                    ("CSV files", "*.csv"), 
+                                                    ("Word files", "*.docx"), 
+                                                    ("HTML files", "*.html"),
+                                                    ("Text files", "*.txt"),
+                                                    ("PDF files", "*.pdf")])
     
     if not file_path:
         return
@@ -34,6 +36,10 @@ def process_file():
         data = extract_text_from_csv(file_path)
     elif extension == 'docx':
         data = extract_text_from_docx(file_path)
+    elif extension == 'txt':
+        data = extract_text_from_txt(file_path)
+    elif extension == 'pdf':
+        data = extract_text_from_pdf(file_path)
     else:
         messagebox.showerror("Error", "Formato de archivo no soportado")
         return
