@@ -11,6 +11,7 @@ from saves import save_to_xlsx, save_to_csv
 
 automaton = Automaton("automaton.xml")
 currencies = []
+extensionGlb = ''
 
 def process_file():
     file_path = filedialog.askopenfilename(filetypes=[("All Files", "*.xlsx *.csv *.docx *.html *.txt *.pdf"), 
@@ -46,8 +47,10 @@ def process_file():
 
 def analyze_text(data, extension):
     global currencies
+    global extensionGlb
+    extensionGlb = extension
 
-    if extension == 'csv' or extension == 'xlsx':
+    if extension in ["csv", "xlsx"]:
         currencies = analyze_dataframe(data)
         update_treeview_for_csv()
     else:
@@ -159,7 +162,7 @@ for col in columns:
 footer_label = tk.Label(root, text="Integrantes: Diego Gordillo L - 223213 Mónica Mundo C - 223238", font=("Arial", 10), bg="#ADD8E6", fg="#00008B")
 footer_label.pack(side=tk.LEFT, padx=10, pady=10)
 
-csv_button = tk.Button(root, text="Descargar CSV", command=lambda: save_to_csv(currencies), bg="white", fg="#00008B")
-xlsx_button = tk.Button(root, text="Descargar XLSX", command=lambda: save_to_xlsx(currencies), bg="white", fg="#00008B")
+csv_button = tk.Button(root, text="Descargar CSV", command=lambda: save_to_csv(currencies, extensionGlb), bg="white", fg="#00008B")
+xlsx_button = tk.Button(root, text="Descargar XLSX", command=lambda: save_to_xlsx(currencies, extensionGlb), bg="white", fg="#00008B")
 
 root.mainloop()

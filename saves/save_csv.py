@@ -1,7 +1,7 @@
 from tkinter import filedialog, messagebox
 import pandas as pd
 
-def save_to_csv(currencies):
+def save_to_csv(currencies, extension):
     save_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
     if save_path:
         if not currencies:
@@ -10,7 +10,7 @@ def save_to_csv(currencies):
         
         csv_columns = []
         
-        if len(currencies[0]) == 3:
+        if extension in ["csv", "xlsx"]:
             csv_columns = ['Moneda', 'Fila', 'Columna']
         else:
             csv_columns = ["Moneda", "Posición Inicial", "Posición Final"]
