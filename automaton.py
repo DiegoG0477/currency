@@ -1,8 +1,8 @@
 import xml.etree.ElementTree as ET
 import re
 
-#el alfabeto de nuestro automata es:
-#{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, $, €, ¥, [,], [.], ' ', E, U, R, M, X, N, S, D}
+# automaton alphabet:
+# { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, $, €, ¥, [,], [.], ' ', E, U, R, M, X, N, S, D }
 
 class Automaton:
     def __init__(self, xml_file):
@@ -16,7 +16,6 @@ class Automaton:
         tree = ET.parse(xml_file)
         root = tree.getroot()
 
-        # Parse states
         for state in root.find('automaton').findall('state'):
             state_id = state.get('id')
             state_name = state.get('name')
@@ -29,7 +28,6 @@ class Automaton:
             if is_final:
                 self.final_states.add(state_id)
 
-        # Parse transitions
         for transition in root.find('automaton').findall('transition'):
             from_state = transition.find('from').text
             to_state = transition.find('to').text
@@ -51,50 +49,62 @@ class Automaton:
         Matches the input character with the transition's read value.
         Handles ranges like [0-9], symbols, and special cases like [SPC] for space.
         """
-
-        # Handle the special case for space represented as [SPC]
         if read_value == '[SPC]':
-            return char == ' '  # Compare against a space character
+            return char == ' '
 
-        # If the read_value is a character range like [0-9]
         if read_value.startswith('[') and read_value.endswith(']'):
             # Extract the range inside the square brackets
             range_pattern = read_value[1:-1]
             return bool(re.match(f"[{range_pattern}]", char))
         
-        # Otherwise, just match the literal value
         return read_value == char
- 
-    def simulate(self, input_string):
+
+    def find_valid_sequences(self, input_string):
         """
-        Simulates the automaton on the given input string and returns True if accepted.
+        Processes the entire input string, detecting valid sequences
+        according to the automaton, and returns a list of valid substrings with their initial and final indices.
         """
+        valid_sequences = []
+        current_sequence = ""
         current_state = self.initial_state
-        
-        for char in input_string:
-            # print(f"Processing '{char}' in state '{self.states[current_state]}'")
+        initial_char = None
+
+        for i in range(len(input_string)):
+            char = input_string[i]
             next_state = self.is_valid_transition(current_state, char)
+
             if next_state is None:
-                return False  # Invalid transition
-            current_state = next_state
-        
-        # After processing the input, check if the automaton ends in a final state
-        return current_state in self.final_states
+                if current_state in self.final_states and current_sequence:
+                    valid_sequences.append((current_sequence, initial_char, i - 1))
+                
+                current_state = self.initial_state
+                current_sequence = ""
+                initial_char = None
+            else:
+                if current_sequence == "":
+                    initial_char = i
+
+                current_sequence += char
+                current_state = next_state
+
+        if current_state in self.final_states and current_sequence:
+            valid_sequences.append((current_sequence, initial_char, len(input_string) - 1))
+
+        return valid_sequences
 
 def main():
-    # Load the automaton from the XML file
     automaton = Automaton("automaton.xml")
     
     while True:
-        # Get input from the user
         user_input = input("Enter a string to test (or 'exit' to quit): ")
         if user_input.lower() == 'exit':
             break
 
-        if automaton.simulate(user_input):
-            print(f"The input '{user_input}' is accepted.")
+        valid_sequences = automaton.find_valid_sequences(user_input)
+        if valid_sequences:
+            print(f"Valid sequences found: {', '.join(valid_sequences)}")
         else:
-            print(f"The input '{user_input}' is rejected.")
+            print("No valid sequences found.")
 
 if __name__ == "__main__":
     main()

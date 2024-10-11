@@ -13,7 +13,7 @@ def save_to_xlsx(currencies):
         if len(currencies[0]) == 3:
             xlsx_columns = ['Moneda', 'Fila', 'Columna']
         else:
-            xlsx_columns = ["Moneda", "Posición Inicial", "Posición Final", "Indice"]
+            xlsx_columns = ["Moneda", "Posición Inicial", "Posición Final"]
 
         df = pd.DataFrame(currencies, columns=xlsx_columns)
         

@@ -13,7 +13,7 @@ def save_to_csv(currencies):
         if len(currencies[0]) == 3:
             csv_columns = ['Moneda', 'Fila', 'Columna']
         else:
-            csv_columns = ["Moneda", "Posición Inicial", "Posición Final", "Indice"]
+            csv_columns = ["Moneda", "Posición Inicial", "Posición Final"]
         
         df = pd.DataFrame(currencies, columns=csv_columns)
 

@@ -1,6 +1,6 @@
 import unittest
 from io import StringIO
-from currency import Automaton
+from automaton import Automaton
 import xml.etree.ElementTree as ET
 
 class TestAutomaton(unittest.TestCase):

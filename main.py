@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
 import pandas as pd
-from currency import Automaton
+from automaton import Automaton
 import xml.etree.ElementTree as ET
 from tkinter import ttk
 
@@ -9,13 +9,11 @@ from tkinter import ttk
 from extracts import extract_text_from_html, extract_text_from_xlsx, extract_text_from_csv, extract_text_from_docx, extract_text_from_txt, extract_text_from_pdf
 from saves import save_to_xlsx, save_to_csv
 
-
 automaton = Automaton("automaton.xml")
-symbols = ['$', '€', '¥', 'USD', 'EUR', 'MXN']
 currencies = []
 
 def process_file():
-    file_path = filedialog.askopenfilename(filetypes=[("All Files", "*.xlsx *.csv *.docx *.html"), 
+    file_path = filedialog.askopenfilename(filetypes=[("All Files", "*.xlsx *.csv *.docx *.html *.txt *.pdf"), 
                                                     ("Excel files", "*.xlsx"), 
                                                     ("CSV files", "*.csv"), 
                                                     ("Word files", "*.docx"), 
@@ -53,56 +51,22 @@ def analyze_text(data, extension):
         currencies = analyze_dataframe(data)
         update_treeview_for_csv()
     else:
-        currencies = analyze_text_array(data)
+        currencies = evaluate_text(data)
         update_treeview_for_text()
 
     display_results(currencies, extension)
 
-def evaluate_word(word): 
-        current_state = automaton.initial_state
-        for char in word:
-            next_state = automaton.is_valid_transition(current_state, char)
-            if next_state is None:
-                return False
-            current_state = next_state
-        return current_state in automaton.final_states
+def evaluate_text(text):
+    return automaton.find_valid_sequences(text)
 
-def analyze_text_array(text):
-    text_array = text.split(' ')
-    currencies = []
-
-    position = 0
-
-    # for index, char in enumerate(text):
-    #     print(f"Índice: {index}, Carácter: '{char}'")
-
-    for i in range(len(text_array)):
-        word = text_array[i]
-        start_position = text.find(word, position)  
-        end_position = start_position + len(word) - 1  
-        position = end_position + 1  
-
-        if word in symbols:
-            symbol_index = i
-            if evaluate_word(text_array[symbol_index-1] + ' ' + word):
-                prev_word = text_array[symbol_index-1] # El número antes del simbolo (word es el simbolo)
-                start_position = text.find(prev_word) # Aqui estoy buscando el numero ya que este es el caso donde el num esta antes del simbolo entonces del primer digito del num sale la pos de inicio diosmio
-                end_position = start_position + len(prev_word + ' ' + word) - 1 
-                currencies.append((prev_word + ' ' + word, start_position, end_position, i))
-                continue
-
-            if evaluate_word(word + ' ' + text_array[symbol_index+1]):
-                next_word = text_array[symbol_index+1]
-                end_position = start_position + len(word + ' ' + next_word) - 1  
-                print(word + ' ' + next_word)
-                currencies.append((word + ' ' + next_word, start_position, end_position, i))
-                continue
-
-        elif evaluate_word(word):
-            currencies.append((word, start_position, end_position, i))
-
-    # display_results(currencies)
-    return currencies
+def evaluate_word(text): 
+    current_state = automaton.initial_state
+    for char in text:
+        next_state = automaton.is_valid_transition(current_state, char)
+        if next_state is None:
+            return False
+        current_state = next_state
+    return current_state in automaton.final_states
 
 def analyze_dataframe(df):
     global currencies
@@ -136,17 +100,15 @@ def update_treeview_for_csv():
     tree.column("Columna", anchor="center")
 
 def update_treeview_for_text():
-    tree["columns"] = ("Moneda", "Posición inicial", "Posición final", "Índice")
+    tree["columns"] = ("Moneda", "Posición inicial", "Posición final")
 
     tree.heading("Moneda", text="Moneda")
     tree.heading("Posición inicial", text="Posición inicial")
     tree.heading("Posición final", text="Posición final")
-    tree.heading("Índice", text="Índice")
 
     tree.column("Moneda", anchor="center")
     tree.column("Posición inicial", anchor="center")
     tree.column("Posición final", anchor="center")
-    tree.column("Índice", anchor="center")
 
 def display_results(currencies, extension):
     for row in tree.get_children():
@@ -157,8 +119,8 @@ def display_results(currencies, extension):
             value, row_index, col_index = currency
             tree.insert("", tk.END, values=(value, row_index, col_index))
         else:
-            value, start_position, end_position, word_index = currency
-            tree.insert("", tk.END, values=(value, start_position, end_position, word_index))
+            value, start_position, end_position = currency
+            tree.insert("", tk.END, values=(value, start_position, end_position))
 
     csv_button.pack(pady=5)
     xlsx_button.pack(pady=5)
@@ -188,7 +150,7 @@ select_button.pack(side=tk.LEFT, padx=10)
 result_frame = tk.Frame(root, bg="#ADD8E6")
 result_frame.pack(pady=10)
 
-columns = ("Moneda", "Posición inicial", "Posición final", "Índice")
+columns = ("Moneda", "Posición inicial", "Posición final")
 tree = ttk.Treeview(result_frame, columns=columns, show="headings", height=20)
 tree.pack()
 

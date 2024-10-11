@@ -5,5 +5,5 @@ def extract_text_from_html(file_path):
         html_content = file.read()
 
     soup = BeautifulSoup(html_content, 'html.parser')
-    alltext = soup.get_text(separator=' ', strip=True)
-    return alltext
+
+    return soup.get_text(separator=' ', strip=True)

@@ -3,7 +3,5 @@ def extract_text_from_txt(file_path):
         text = file.read()
     
     words = text.split()
-    separated_text = ' '.join(words)
     
-    print(separated_text)
-    return separated_text
+    return ' '.join(words)
