@@ -69,7 +69,6 @@ def evaluate_word(text):
     return current_state in automaton.final_states
 
 def analyze_dataframe(df):
-    global currencies
     currencies = []
 
     def process_row(row, row_index):
@@ -79,9 +78,8 @@ def analyze_dataframe(df):
 
     def process_cell(value, row_index, col_index):
         value_str = str(value)
-        for symbol in symbols:
-            if symbol in value_str and evaluate_word(value_str):
-                currencies.append((value_str, row_index + 2, col_index))
+        if evaluate_word(value_str):
+            currencies.append((value_str, row_index + 2, col_index))
 
     for row_index, row in df.iterrows():
         process_row(row, row_index)
